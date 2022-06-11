@@ -13,6 +13,7 @@ dependencies:
   http: ">=0.13.1 <1.0.0"
   flutter:
     sdk: flutter
+  http_auth: ^1.0.1
 
 dev_dependencies:
   flutter_test:
