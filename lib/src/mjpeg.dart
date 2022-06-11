@@ -43,6 +43,8 @@ class Mjpeg extends HookWidget {
   final Widget Function(BuildContext contet, dynamic error, dynamic stack)?
       error;
   final Map<String, String> headers;
+  final String? username;
+  final String? password;
 
   const Mjpeg({
     this.isLive = false,
@@ -54,6 +56,8 @@ class Mjpeg extends HookWidget {
     this.error,
     this.loading,
     this.headers = const {},
+    this.username,
+    this.password,
     Key? key,
   }) : super(key: key);
 
@@ -64,8 +68,14 @@ class Mjpeg extends HookWidget {
     final visible = useListenable(state);
     final errorState = useState<List<dynamic>?>(null);
     final manager = useMemoized(
-        () =>
-            _StreamManager(stream, isLive && visible.visible, headers, timeout),
+        () => _StreamManager(
+              stream,
+              isLive && visible.visible,
+              headers,
+              timeout,
+              username: username,
+              password: password,
+            ),
         [stream, isLive, visible.visible, timeout]);
     final key = useMemoized(() => UniqueKey(), [manager]);
 
@@ -130,11 +140,24 @@ class _StreamManager {
   final bool isLive;
   final Duration _timeout;
   final Map<String, String> headers;
-  final Client _httpClient = http_auth.NegotiateAuthClient('root', 'drrobot');
+  final String? username;
+  final String? password;
+  late final Client _httpClient;
   // ignore: cancel_subscriptions
   StreamSubscription? _subscription;
 
-  _StreamManager(this.stream, this.isLive, this.headers, this._timeout);
+  _StreamManager(
+    this.stream,
+    this.isLive,
+    this.headers,
+    this._timeout, {
+    this.username,
+    this.password,
+  }) {
+    _httpClient = username != null && password != null
+        ? http_auth.NegotiateAuthClient(username!, password!)
+        : Client();
+  }
 
   Future<void> dispose() async {
     if (_subscription != null) {

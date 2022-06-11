@@ -39,6 +39,8 @@ class MyHomePage extends HookWidget {
                 },
                 stream:
                     'http://root:drrobot@192.168.0.65/axis-cgi/mjpg/video.cgi', //'http://192.168.1.37:8081',
+                username: 'root',
+                password: 'drrobot',
               ),
             ),
           ),
